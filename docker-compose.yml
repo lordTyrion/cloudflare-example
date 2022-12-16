@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    environment:
+      TUNNEL_URL: http://postgrest:3000
+    command: 'tunnel --no-autoupdate'
+    volumes:
+      - ./cloudflared:/etc/cloudflared
+    links:
+      - postgrest:postgrest
+    depends_on:
+      - postgrest
+  postgrest:
+    image: postgrest/postgrest
+    ports:
+      - '3000:3000'
+    environment:
+      PGRST_DB_URI: postgres://app_user:password@postgres:5432/app_db
+      PGRST_OPENAPI_SERVER_PROXY_URI: http://127.0.0.1:3000
+      # PGRST_JWT_SECRET: n23t5iRQXRnjviaxH95zxeueKbu7kPBS
+      PGRST_DB_ANON_ROLE: app_user
+    depends_on:
+      - postgres
+  postgres:
+    image: postgres
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_DB: app_db
+      POSTGRES_USER: app_user
+      POSTGRES_PASSWORD: password
+    volumes:
+      - 'my-postgres:/var/lib/postgresql/data'
+volumes:
+  my-postgres:

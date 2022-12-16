@@ -1,0 +1,4 @@
+name = "test_worker"
+main = "src/index.ts"
+compatibility_date = "2022-09-30"
+node_compat = true
